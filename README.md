@@ -8,7 +8,7 @@ Actually usable git user interface integration for the neobrains IDE
 
 ```lua
 {
-  "SCRIPTERBLOX/neobrains-git-integration.nvim"
+  "SCRIPTERBLOX/neobrains-git-integration.nvim",
   name = "neobrains-git-integration"
 }
 ```
