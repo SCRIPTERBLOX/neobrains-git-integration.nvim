@@ -7,10 +7,10 @@ config.default_config = {
   valign = "top",
   margin = 1,
   feats = {
-    feats.add,
-    feats.commit,
-    feats.push,
-    feats.remotes
+    "add",
+    "commit",
+    "push",
+    "remotes"
   }
 }
 
