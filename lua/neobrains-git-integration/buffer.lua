@@ -36,40 +36,13 @@ function buffer.create(cfg)
 	-- Switch to git buffer using :buffer command to preserve original buffer
 	vim.cmd("buffer " .. buf)
 
-	-- Set up autocmd to restore original buffer when git buffer is closed
-	vim.api.nvim_create_autocmd({"BufWipeout", "BufDelete"}, {
-		buffer = buf,
-		once = true,
-		callback = function()
-			buffer.restore_original()
-		end,
-	})
+	-- No autocmd - let user manually restore when needed
 
 	return buf
 end
 
 function buffer.restore_original()
-	-- Debug: print current buffer info
-	local current_buf = vim.api.nvim_get_current_buf()
-	print("Current buffer: " .. current_buf)
-	print("Current buffer name: " .. vim.api.nvim_buf_get_name(current_buf))
-	
-	-- List all buffers to see what's available
-	local buffers = vim.api.nvim_list_bufs()
-	print("Available buffers:")
-	for _, buf in ipairs(buffers) do
-		local name = vim.api.nvim_buf_get_name(buf)
-		local is_valid = vim.api.nvim_buf_is_valid(buf)
-		print("  Buffer " .. buf .. ": " .. name .. " (valid: " .. tostring(is_valid) .. ")")
-	end
-	
-	-- Try to close current git buffer and force NvimTree to recreate
-	if state.git_buf and vim.api.nvim_buf_is_valid(state.git_buf) then
-		vim.api.nvim_buf_delete(state.git_buf, {force = true})
-	end
-	
-	-- Force NvimTree to open
-	vim.cmd("NvimTreeOpen")
+	-- Simply focus NvimTree - it will handle recreating its buffer if needed
 	vim.cmd("NvimTreeFocus")
 	
 	-- Clear state
