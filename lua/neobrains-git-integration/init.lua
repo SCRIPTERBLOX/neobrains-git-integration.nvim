@@ -9,3 +9,5 @@ function M.create(user_config, tree_win)
 
 	return buf
 end
+
+return M
