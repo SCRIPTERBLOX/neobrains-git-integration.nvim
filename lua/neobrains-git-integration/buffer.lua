@@ -49,18 +49,28 @@ function buffer.create(cfg)
 end
 
 function buffer.restore_original()
-	if not state.original_buf_name then
-		print("No original buffer name stored")
-		return
+	-- Debug: print current buffer info
+	local current_buf = vim.api.nvim_get_current_buf()
+	print("Current buffer: " .. current_buf)
+	print("Current buffer name: " .. vim.api.nvim_buf_get_name(current_buf))
+	
+	-- List all buffers to see what's available
+	local buffers = vim.api.nvim_list_bufs()
+	print("Available buffers:")
+	for _, buf in ipairs(buffers) do
+		local name = vim.api.nvim_buf_get_name(buf)
+		local is_valid = vim.api.nvim_buf_is_valid(buf)
+		print("  Buffer " .. buf .. ": " .. name .. " (valid: " .. tostring(is_valid) .. ")")
 	end
 	
-	-- Try to restore by focusing NvimTree which should recreate the NvimTree buffer
-	local success = pcall(vim.cmd, "NvimTreeFocus")
-	if not success then
-		print("Failed to focus NvimTree")
-	else
-		print("Successfully focused NvimTree")
+	-- Try to close current git buffer and force NvimTree to recreate
+	if state.git_buf and vim.api.nvim_buf_is_valid(state.git_buf) then
+		vim.api.nvim_buf_delete(state.git_buf, {force = true})
 	end
+	
+	-- Force NvimTree to open
+	vim.cmd("NvimTreeOpen")
+	vim.cmd("NvimTreeFocus")
 	
 	-- Clear state
 	state.original_buf_name = nil
