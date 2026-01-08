@@ -36,6 +36,7 @@ function buffer.create(cfg)
 	-- Set up autocmd to restore original buffer when git buffer is closed
 	vim.api.nvim_create_autocmd({"BufWipeout", "BufDelete"}, {
 		buffer = buf,
+		once = true,
 		callback = function()
 			buffer.restore_original()
 		end,
@@ -46,8 +47,14 @@ end
 
 function buffer.restore_original()
 	if state.original_buf and state.win and vim.api.nvim_win_is_valid(state.win) then
-		-- Restore the original NvimTree buffer to the same window
-		vim.api.nvim_win_set_buf(state.win, state.original_buf)
+		-- Check if original buffer is still valid
+		if vim.api.nvim_buf_is_valid(state.original_buf) then
+			-- Restore the original NvimTree buffer to the same window
+			vim.api.nvim_win_set_buf(state.win, state.original_buf)
+		else
+			-- If original buffer is invalid, try to focus NvimTree to recreate it
+			pcall(vim.cmd, "NvimTreeFocus")
+		end
 	end
 	
 	-- Clear state
