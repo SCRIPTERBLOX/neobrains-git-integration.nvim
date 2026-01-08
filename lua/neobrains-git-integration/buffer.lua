@@ -14,6 +14,8 @@ function buffer.create(cfg, win)
 	vim.api.nvim_buf_set_option(buf, "modifiable", false)
 	vim.api.nvim_buf_set_option(buf, "filetype", "git-integration")
 	vim.api.nvim_set_option(buf, "buftype", "nofile")
+
+	return buf
 end
 
 return buffer
