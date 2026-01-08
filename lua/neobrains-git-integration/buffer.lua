@@ -44,6 +44,8 @@ function buffer.restore_original()
 	if state.win and vim.api.nvim_win_is_valid(state.win) then
 		vim.api.nvim_win_close(state.win, true)
 	end
+
+	vim.cmd("C-w l")
 	
 	-- Reopen NvimTree
 	vim.cmd("NvimTreeOpen")
