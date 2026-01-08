@@ -21,8 +21,9 @@ function buffer.create(cfg)
 	local win = vim.api.nvim_get_current_win()
 	local original_buf = vim.api.nvim_win_get_buf(win)
 
-	-- Store state for restoration
-	state.original_buf = original_buf
+	-- Store the original buffer name for restoration
+	local original_buf_name = vim.api.nvim_buf_get_name(original_buf)
+	state.original_buf_name = original_buf_name
 	state.git_buf = buf
 	state.win = win
 
@@ -48,20 +49,21 @@ function buffer.create(cfg)
 end
 
 function buffer.restore_original()
-	if not state.original_buf then
-		print("No original buffer stored")
+	if not state.original_buf_name then
+		print("No original buffer name stored")
 		return
 	end
 	
-	-- Switch back to original buffer using :buffer command
-	local success = pcall(vim.cmd, "buffer " .. state.original_buf)
+	-- Try to restore by focusing NvimTree which should recreate the NvimTree buffer
+	local success = pcall(vim.cmd, "NvimTreeFocus")
 	if not success then
-		print("Failed to restore original buffer, trying NvimTreeFocus")
-		pcall(vim.cmd, "NvimTreeFocus")
+		print("Failed to focus NvimTree")
+	else
+		print("Successfully focused NvimTree")
 	end
 	
 	-- Clear state
-	state.original_buf = nil
+	state.original_buf_name = nil
 	state.git_buf = nil
 	state.win = nil
 end
