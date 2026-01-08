@@ -45,7 +45,7 @@ function buffer.restore_original()
 		vim.api.nvim_win_close(state.win, true)
 	end
 
-	vim.cmd("wincmd l")
+	vim.cmd("wincmd r")
 	
 	-- Reopen NvimTree
 	vim.cmd("NvimTreeOpen")
