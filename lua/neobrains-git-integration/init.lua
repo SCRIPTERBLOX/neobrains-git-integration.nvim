@@ -10,4 +10,12 @@ function M.create(user_config)
 	return buf
 end
 
+function M.restore_original()
+	buffer.restore_original()
+end
+
+function M.close()
+	buffer.close()
+end
+
 return M
