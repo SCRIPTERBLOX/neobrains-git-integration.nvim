@@ -55,6 +55,8 @@ function buffer.restore_original()
 	state.original_buf_name = nil
 	state.git_buf = nil
 	state.win = nil
+
+	vim.cmd("wincmd r")
 end
 
 function buffer.close()
