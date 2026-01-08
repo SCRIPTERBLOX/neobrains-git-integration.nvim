@@ -16,33 +16,37 @@ function buffer.create(cfg)
 		"Integration"
 	}
 
-	-- Focus NvimTree and get current state
-	vim.cmd(":NvimTreeFocus")
+	-- Open NvimTree first to ensure it's available
+	vim.cmd("NvimTreeOpen")
+	vim.cmd("NvimTreeFocus")
+	
+	-- Get the current window (should be NvimTree window)
 	local win = vim.api.nvim_get_current_win()
-	local original_buf = vim.api.nvim_win_get_buf(win)
-
-	-- Store the original buffer name for restoration
-	local original_buf_name = vim.api.nvim_buf_get_name(original_buf)
-	state.original_buf_name = original_buf_name
-	state.git_buf = buf
+	
+	-- Store window info for restoration
 	state.win = win
+	state.git_buf = buf
 
-	-- Set up buffer content first
+	-- Set up buffer content
 	vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
 	vim.api.nvim_buf_set_option(buf, "modifiable", false)
 	vim.api.nvim_buf_set_option(buf, "filetype", "git-integration")
 	vim.api.nvim_buf_set_option(buf, "buftype", "nofile")
 
-	-- Switch to git buffer using :buffer command to preserve original buffer
-	vim.cmd("buffer " .. buf)
-
-	-- No autocmd - let user manually restore when needed
+	-- Replace the buffer in the NvimTree window
+	vim.api.nvim_win_set_buf(win, buf)
 
 	return buf
 end
 
 function buffer.restore_original()
-	-- Simply focus NvimTree - it will handle recreating its buffer if needed
+	-- Close the current window and let NvimTree recreate itself
+	if state.win and vim.api.nvim_win_is_valid(state.win) then
+		vim.api.nvim_win_close(state.win, true)
+	end
+	
+	-- Reopen NvimTree
+	vim.cmd("NvimTreeOpen")
 	vim.cmd("NvimTreeFocus")
 	
 	-- Clear state
