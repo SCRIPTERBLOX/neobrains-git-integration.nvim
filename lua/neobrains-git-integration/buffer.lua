@@ -26,12 +26,14 @@ function buffer.create(cfg)
 	state.git_buf = buf
 	state.win = win
 
-	-- Switch to git buffer in the same window
-	vim.api.nvim_win_set_buf(win, buf)
+	-- Set up buffer content first
 	vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
 	vim.api.nvim_buf_set_option(buf, "modifiable", false)
 	vim.api.nvim_buf_set_option(buf, "filetype", "git-integration")
 	vim.api.nvim_buf_set_option(buf, "buftype", "nofile")
+
+	-- Switch to git buffer using :buffer command to preserve original buffer
+	vim.cmd("buffer " .. buf)
 
 	-- Set up autocmd to restore original buffer when git buffer is closed
 	vim.api.nvim_create_autocmd({"BufWipeout", "BufDelete"}, {
@@ -51,36 +53,11 @@ function buffer.restore_original()
 		return
 	end
 	
-	if not state.win then
-		print("No window stored")
-		return
-	end
-	
-	if not vim.api.nvim_win_is_valid(state.win) then
-		print("Window is invalid")
-		state.original_buf = nil
-		state.git_buf = nil
-		state.win = nil
-		return
-	end
-	
-	-- Check if original buffer is still valid
-	if not vim.api.nvim_buf_is_valid(state.original_buf) then
-		print("Original buffer is invalid, focusing NvimTree")
-		-- If original buffer is invalid, try to focus NvimTree to recreate it
-		pcall(vim.cmd, "NvimTreeFocus")
-		state.original_buf = nil
-		state.git_buf = nil
-		state.win = nil
-		return
-	end
-	
-	-- Restore the original NvimTree buffer to the same window
-	local success, err = pcall(vim.api.nvim_win_set_buf, state.win, state.original_buf)
+	-- Switch back to original buffer using :buffer command
+	local success = pcall(vim.cmd, "buffer " .. state.original_buf)
 	if not success then
-		print("Failed to set buffer: " .. err)
-	else
-		print("Successfully restored original buffer")
+		print("Failed to restore original buffer, trying NvimTreeFocus")
+		pcall(vim.cmd, "NvimTreeFocus")
 	end
 	
 	-- Clear state
